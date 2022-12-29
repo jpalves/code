@@ -4,6 +4,11 @@
 #include <complex>
 #include <mat.h>
 
+#if (defined __GNUC__) && (__GNUC__>4 || __GNUC_MINOR__>=7)
+  #undef _GLIBCXX_ATOMIC_BUILTINS
+  #undef _GLIBCXX_USE_INT128
+#endif
+
 template <typename T> class complexo:public std::complex<T>{ 
 private:
    template<typename U> friend std::ostream &operator<<(std::ostream &stream,complexo<U> z);
@@ -81,6 +86,8 @@ template <typename U> std::ostream &operator <<(std::ostream &stream,complexo<U>
 
     return stream;
 }
+
+
 
 int main(){
     Eigen::Matrix3d A;
