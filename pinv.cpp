@@ -46,7 +46,10 @@ matriz <double> pinv(p::object r){
     for(int i = 0; i < S.linhas(); i++)
         S[i][i] =  1/reinterpret_cast<double*>(s.get_data())[i];
     
-    return V.transposta()*S*U.transposta();;
+    std::cout << S << std::endl;
+    std::cout << V << std::endl;
+    std::cout << U << std::endl;
+    return V.transposta()*S*U.transposta();
 }   
 
 int main(int argc, char *argv[]){

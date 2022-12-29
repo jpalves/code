@@ -16,7 +16,7 @@ template <typename T> class matriz{
 	int m,n;
 	T **v;
 	//inline void swap(int &a,int &b){int aux=a;a=b;b=aux;}
-	//template <typename U> friend matriz<U> operator /(const matriz<U> &in,const U &z);
+	template <typename U> friend matriz<U> operator /(const U &z,const matriz<U> &in);
 	template <typename U> friend matriz<U> operator *(const U &z, const matriz<U> &in);
 	template <typename U> friend std::ostream& operator <<(std::ostream& stream,const matriz<U> &M);
 public:
@@ -164,13 +164,14 @@ template <typename T>matriz<T> &matriz<T>::operator =(const matriz &in){
 	}
 	return *this;
 }
-/*
-template <typename U> matriz<U> operator /(const matriz<U> &in,const U &z){
+
+template <typename U> matriz<U> operator /(const U &z,const matriz<U> &in){
 	matriz<U> temp = in;
 	
-	for(int i = 0;i < temp.m*temp.n;i++) temp.v[0][i] /=z;
+	for(int i = 0;i < temp.m*temp.n;i++) temp.v[0][i] =z/temp.v[0][i];
 	return temp;
-}*/
+}
+
 /*
 template <typename T> matriz<T> matriz<T>::operator*(const T s){
 	matriz<T> temp = *this;

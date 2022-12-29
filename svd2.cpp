@@ -102,22 +102,12 @@ void householder(matriz <double> &A,
 				v.asVector()[i] = A[row_start][i];
 		}
 	}
-    //std::cout << x << "\n";
-
+   
 	float x_norm = norm(v);
 	float alpha  = sign(v.asVector()[start]) * x_norm;
-
-	// std::cout << column << " " <<  start << " x = " << x(start) << "\n";
-
-	//matriz<double> v = x;
-
-	//v.set 
-
+ 
 	v.asVector()[start] += alpha;
 	normalize(v);
-
-	//matriz <double> Q;
-
 
 	if (column) {
 		for (unsigned int i = 0; i < A.colunas(); i++) {
@@ -138,24 +128,23 @@ void householder(matriz <double> &A,
 				QQ[i][j] = QQ[i][j] - 2 * v.asVector()[j] * sum_Qv;
 		}
 
-	} else { //estou aqui
-		//pretty_print("debug:", A);
+	} else { 
 		for (unsigned int i = 0; i < A.linhas(); i++) {
 			double sum_Av = 0.0f;
 
 			for (unsigned int j = 0; j < A.colunas(); j++)
-				sum_Av = sum_Av + (v[j][0] * A[i][j]);
+				sum_Av = sum_Av + (v.asVector()[j] * A[i][j]);
 			for (unsigned int j = 0; j < A.colunas(); j++)
-				A[i][j] = A[i][j] - 2 * v[j][0] * sum_Av;
+				A[i][j] = A[i][j] - 2 * v.asVector()[j] * sum_Av;
 		}
 
 		for (unsigned int i = 0; i < A.colunas(); i++) {
 			double sum_Qv = 0.0f;
 
 			for (unsigned int j = 0; j < A.colunas(); j++)
-				sum_Qv = sum_Qv + (v[j][0] * QQ[i][j]);
+				sum_Qv = sum_Qv + (v.asVector()[j] * QQ[i][j]);
 			for (unsigned int j = 0; j < A.colunas(); j++)
-				QQ[i][j] = QQ[i][j] - 2 * v[j][0] * sum_Qv;
+				QQ[i][j] = QQ[i][j] - 2 * v.asVector()[j] * sum_Qv;
 		}
 	}
 }
@@ -165,26 +154,22 @@ void svd_qr_shift(matriz<double>&u,
 	     matriz<double>&q, matriz<double>&e){
 	int n = q.linhas();
 	int m = u.linhas();
-
-	//std::cout << u.linhas() << " " << u.colunas() << "\n";
-
 	bool goto_test_conv = false;
 
 	for (int k = n - 1; k >= 0; k--) {
-		//std::cout << "U = " << u << std::endl;
-
+		
 		for (int iter = 0; iter < ITER_MAX; iter++) {
 			// test for split
 			int l;
 			for (l = k; k >= 0; l--) {
 				goto_test_conv = false;
-				if (fabs(e[l][0]) <= EPS) {
+				if (fabs(e.asVector()[l]) <= EPS) {
 					// set it
 					goto_test_conv = true;
 					break;
 				}
 
-				if (fabs(q[l - 1][0]) <= EPS) {
+				if (fabs(q.asVector()[l - 1]) <= EPS) {
 					// goto
 					break;
 				}
@@ -197,16 +182,16 @@ void svd_qr_shift(matriz<double>&u,
 				int l1 = l - 1;
 
 				for (int i = l; i <= k; i++) {
-					double f = s * e[i][0];
-					e[i][0] = c * e[i][0];
+					double f = s * e.asVector()[i];
+					e.asVector()[i] = c * e.asVector()[i];
 
 					if (fabs(f) <= EPS) {
 						break;
 					}
 
-					double g = q[i][0];
+					double g = q.asVector()[i];
 					double h = pythag(f, g);
-					q[i][0] = h;
+					q.asVector()[i] = h;
 					c = g / h;
 					s = -f / h;
 
@@ -219,11 +204,11 @@ void svd_qr_shift(matriz<double>&u,
 				}
 			}
 
-			double z = q[k][0];
+			double z = q.asVector()[k];
 
 			if (l == k) {
 				if (z < 0.0f) {
-					q[k][0] = -z;
+					q.asVector()[k] = -z;
 
 					for(int j = 0; j < n; j++)
 						v[j][k] = -v[j][k];
@@ -236,10 +221,10 @@ void svd_qr_shift(matriz<double>&u,
 				break;
 			}
 
-			double x = q[l][0];
-			double y = q[k - 1][0];
-			double g = e[k - 1][0];
-			double h = e[k][0];
+			double x = q.asVector()[l];
+			double y = q.asVector()[k - 1];
+			double g = e.asVector()[k - 1];
+			double h = e.asVector()[k];
 			double f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0 * h * y);
 			
 			g = pythag(f, 1.0);
@@ -254,12 +239,12 @@ void svd_qr_shift(matriz<double>&u,
 			double s = 1.0;
 
 			for (int i = l + 1; i <= k; i++) {
-				g = e[i][0];
-				y = q[i][0];
+				g = e.asVector()[i];
+				y = q.asVector()[i];
 				h = s * g;
 				g = c * g;
 				double z = pythag(f, h);
-				e[i - 1][0] = z;
+				e.asVector()[i - 1] = z;
 				c = f / z;
 				s = h / z;
 				f = x * c + g * s;
@@ -275,7 +260,7 @@ void svd_qr_shift(matriz<double>&u,
 				}
 
 				z = pythag(f, h);
-				q[i - 1][0] = z;
+				q.asVector()[i - 1] = z;
 				c = f / z;
 				s = h / z;
 				f = c * g + s * y;
@@ -288,9 +273,9 @@ void svd_qr_shift(matriz<double>&u,
 					u[j][i] = -y * s + z * c;
 				}
 			}
-			e[l][0] = 0.0;
-			e[k][0] = f;
-			q[k][0] = x;
+			e.asVector()[l] = 0.0;
+			e.asVector()[k] = f;
+			q.asVector()[k] = x;
 		}
 	}
 }
@@ -324,7 +309,7 @@ void svd(matriz<double>&A,
 	matriz <double> s(4, 1,0.0f);
 
 	for (int i = 0; i < to; i++) {
-		d[i][0] = A[i][i];
+		d.asVector()[i] = A[i][i];
 		if (i < (to - 1))
 			s[i + 1][0] = A[i][i + 1];
 	}
@@ -342,7 +327,6 @@ void svd(matriz<double>&A,
     //QQW = zeros<double>(row_num, col_num);
 	//for (int i = 0; i < to; i++)
 	QQW = std::move(d);
-
 }
 
 bool check_bidiag(matriz <double>&A)
@@ -364,24 +348,30 @@ bool check_bidiag(matriz <double>&A)
 	return true;
 }
 
+template <typename T> matriz <T> diag(matriz<T> v){
+    matriz <T> temp(v.linhas(),v.linhas());
+    for(int i=0;i < v.linhas();i++)
+        temp[i][i] = v.asVector()[i];
+    return temp;
+}
 
 
 int main(){
-	matriz<double> in(3, 3,{1,2,3,4,5,6,7,8,9});
+	matriz<double> in(3, 3,{0,2,3,4,0,0,7,8,9}),S;
 	//ublas::matrix < float > ref = in;
 
 	pretty_print("Input:", in);
 
 	matriz <double> QQL; //U
     matriz <double> QQW; //s 
-	matriz <double> QQR; //V
+	matriz <double> QQR; //V transposta
 
     svd(in, QQL, QQW, QQR);
 
 	// std::cout << in << "\n";
 	matriz <double> result;
 
-
+	S = diag(1.0/QQW);
 
 	pretty_print("Bidiag:", in);
     pretty_print("QQL:", QQL);
@@ -389,8 +379,11 @@ int main(){
     pretty_print("QQR:", QQR);
 
 	print_matrix(in);
-	//std::cout << "DIFF    = " << matrix_compare(result, ref) << "\n";
+	/*//std::cout << "DIFF    = " << matrix_compare(result, ref) << "\n";
 	///std::cout << "Is bidiag " << check_bidiag(in) << "\n";
+     */
 
+	std::cout << S << std::endl;
+	std::cout <<QQR*S*QQL.transposta(); 
 	return 0;
 }
