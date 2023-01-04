@@ -68,6 +68,7 @@ int main(int argc, char *argv[]){
     //std::cout << std::setprecision(3) << std::fixed;
     //printM(INV);
     std::cout << INV << std::endl;
+    std::cout << INV.transposta() << std::endl;
 
     return 0;
 }

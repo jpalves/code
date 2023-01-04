@@ -16,7 +16,8 @@ template <typename T> class matriz{
 	int m,n;
 	T **v;
 	//inline void swap(int &a,int &b){int aux=a;a=b;b=aux;}
-	template <typename U> friend matriz<U> operator /(const U &z,const matriz<U> &in);
+	template <typename U> friend matriz<U> operator /(const U &z, const matriz<U> &in);
+	template <typename U> friend matriz<U> operator /(const matriz<U> &in, const U &z);
 	template <typename U> friend matriz<U> operator *(const U &z, const matriz<U> &in);
 	template <typename U> friend std::ostream& operator <<(std::ostream& stream,const matriz<U> &M);
 public:
@@ -48,8 +49,18 @@ public:
 	matriz<T> transposta();
 	void trocaLinhas(int i,int j);
 	void trocaColunas(int i,int j);
-	matriz<T> eye();	
-	//void vira();
+	matriz<T> eye();
+	matriz<T> coluna(int i);
+	void computeMinor(const matriz& mat, int d) {
+    	*this = matriz(mat.m, mat.n);
+		
+		for (int i = 0; i < d; i++)
+      		(*this)[i][i] = 1.0;
+    	for (int i = d; i < mat.m; i++)
+      		for (int j = d; j < mat.n; j++)
+				(*this)[i][j] = mat[i][j];
+    
+  	}
 };
 
 template <typename T> matriz<T>::matriz(int m,int n):m(m),n(n),v(n > 0 ?new T *[m]: NULL){
@@ -169,6 +180,13 @@ template <typename U> matriz<U> operator /(const U &z,const matriz<U> &in){
 	matriz<U> temp = in;
 	
 	for(int i = 0;i < temp.m*temp.n;i++) temp.v[0][i] =z/temp.v[0][i];
+	return temp;
+}
+
+template <typename U> matriz<U> operator /(const matriz<U> &in,const U &z){
+	matriz<U> temp = in;
+	
+	for(int i = 0;i < temp.m*temp.n;i++) temp.v[0][i] =temp.v[0][i]/z;
 	return temp;
 }
 
@@ -385,7 +403,17 @@ template <typename T> matriz<T> matriz<T>::coff(unsigned i, unsigned j) const {
 	return y;	
 }
 
+template <typename T> matriz<T> matriz<T>::coluna(int i) {
+	if (n==0)
+		throw std::logic_error("Matriz vazia");
 
+	matriz<T> y(n,1);
+	
+	for (unsigned k_x=0; k_x< n;k_x++){
+		y.v[k_x][0]=v[k_x][i];
+	}
+	return y;	
+}
 
 //
 template <typename T> matriz<T> matriz<T>::Inv(){
@@ -406,13 +434,13 @@ template <typename T> matriz<T> matriz<T>::Inv(){
 	return y;
 	
 }
-
+//bronca
 template <typename T> matriz<T> matriz<T>::transposta(){
-	matriz<T> y(m,n);
+	matriz<T> y(n,m);
 
-        for (unsigned i=0; i< n; i++)
-		for (unsigned j=0; j< m; j++)
-			y.v[j][i]=v[i][j];
+        for (unsigned i=0; i< m; i++)
+			for (unsigned j=0; j< n; j++)
+				y[j][i]=v[0][i*n + j];
 	return y;
 }
 
@@ -454,4 +482,13 @@ template <typename T>matriz<T> zeros(int linhas,int colunas){
         for(int j=0;j < temp.colunas();j++)
             temp[i][j] = 0;
     return temp;
+}
+
+template <typename T>matriz<T> ones(int linhas,int colunas){
+	matriz <T> temp(linhas,colunas);
+	
+	for(int i=0;i < temp.linhas();i++)
+		for(int j=0;j < temp.colunas();j++)
+			temp[i][j] = 1;
+	return temp;
 }
